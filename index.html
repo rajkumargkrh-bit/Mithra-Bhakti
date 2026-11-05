@@ -44,6 +44,16 @@
   <input id="filePicker" type="file" hidden multiple>
   <input id="backupPicker" type="file" accept="application/json,.json" hidden>
   <div id="toast" class="toast" role="status"></div>
+  <div id="mbDialog" class="mb-dialog hidden" aria-hidden="true" role="presentation">
+    <section class="mb-dialog-card" role="dialog" aria-modal="true" aria-labelledby="mbDialogTitle">
+      <div class="mb-dialog-emblem">✦</div>
+      <div class="eyebrow">MITHRA BHAKTI</div>
+      <h2 id="mbDialogTitle">Mithra Bhakti</h2>
+      <p id="mbDialogMessage"></p>
+      <input id="mbDialogInput" class="input hidden" autocomplete="off">
+      <div class="mb-dialog-actions"><button id="mbDialogCancel" class="btn soft">Cancel</button><button id="mbDialogOk" class="btn gold">Continue</button></div>
+    </section>
+  </div>
   <script src="js/database.js"></script>
   <script src="js/app.js"></script>
   <script src="js/songs.js"></script>
