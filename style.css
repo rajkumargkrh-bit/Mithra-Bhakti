@@ -14,13 +14,13 @@ nav [data-v=home]{--nc:var(--c2)}nav [data-v=books]{--nc:var(--c1)}nav [data-v=v
 nav button{flex:1;padding:13px 4px;background:none;border:0;color:color-mix(in srgb,var(--nc) 70%,var(--mut));font-size:13px}
 nav button.on{color:var(--nc);font-weight:700;box-shadow:inset 0 3px 0 var(--nc)}
 .brand{display:none}
-main{flex:1;padding:calc(16px + env(safe-area-inset-top)) 16px 96px;max-width:1000px;margin:auto;width:100%}
+main{flex:1;align-self:flex-start;padding:calc(16px + env(safe-area-inset-top)) 16px 96px;max-width:1000px;margin:0 auto;width:100%;min-width:0}
 @media(min-width:800px){
 nav{position:sticky;top:0;height:100vh;width:210px;flex:none;flex-direction:column;border:0;border-right:1px solid var(--line);padding:28px 12px;gap:4px}
 nav button{flex:none;text-align:left;padding:12px 14px;border-radius:10px;font-size:16px}
 nav button.on{box-shadow:none;background:color-mix(in srgb,var(--nc) 16%,transparent)}
 .brand{display:block;font-family:'Noto Serif Tamil',serif;font-weight:600;font-size:22px;background:linear-gradient(90deg,var(--c2),var(--c1));-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 14px 20px}
-main{padding:32px 32px 48px}}
+main{padding:32px 32px 48px;align-self:flex-start;margin:0 auto}}
 .hero{background:var(--hero);color:var(--heroink);border-radius:20px;padding:22px 24px;position:relative;overflow:hidden;min-height:150px}
 .hero:after{content:"";position:absolute;inset:0;background:radial-gradient(circle,var(--gold) 1.8px,transparent 2.2px) 0 0/24px 24px;opacity:.4;-webkit-mask-image:linear-gradient(90deg,transparent 35%,#000);mask-image:linear-gradient(90deg,transparent 35%,#000)}
 .hero>*{position:relative;z-index:1}
