@@ -5,6 +5,7 @@ Mobile-first devotional PWA starter built with HTML, CSS and JavaScript.
 ## Features
 - **Songs & lyrics book (v1.1):** add/edit/delete Tamil songs, deity and category tags, favourites, search, lyrics reader with font size and spacing controls, optional linked audio/video, included in JSON backup
 - **Reader tools (v1.2):** auto-scroll with speed control, screen wake lock, Tanglish search (type `murugan`, `kanda sasti` to find Tamil songs), bhajan setlists with reorder and Prev/Next play mode
+- **Player Plus (v1.4):** seek/progress bar, sleep timer (15/30/60 min), favourites list, loop count (3/11/21/108×), per-track lyrics view (auto-uses linked Songs & Lyrics)
 - Animated Mithra Bhakti splash screen and lettermark
 - Royal Purple + Gold default theme; White, Blue and Lavender themes
 - Bottom navigation: Home, Calendar, Player, Menu (Songs and Music Library remain available in Menu)
