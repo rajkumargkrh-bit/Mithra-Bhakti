@@ -1,0 +1,34 @@
+/* Mithra Bhakti — Daily Bhakti Tracker (additive module)
+   Uses isolated mb_bkDaily* keys; does not replace existing poojaChecklist data. */
+(()=>{
+'use strict';
+const MB=window.MB;if(!MB)return;
+const $=s=>document.querySelector(s),get=MB.get,set=MB.set,esc=MB.esc,toast=MB.toast;
+const tasks=[
+ {id:'morning',icon:'🌅',name:'காலை இறை வணக்கம்',sub:'Start the day with a prayer'},
+ {id:'lamp',icon:'🪔',name:'விளக்கு ஏற்றுதல்',sub:'Light the morning or evening lamp'},
+ {id:'song',icon:'🎵',name:'ஒரு பக்திப் பாடல்',sub:'Listen to a devotional song'},
+ {id:'japam',icon:'📿',name:'ஜபம் / மந்திரம்',sub:'Spend a few peaceful minutes'},
+ {id:'gratitude',icon:'🙏',name:'நன்றியுணர்வு',sub:'Remember one thing to be thankful for'}
+];
+const key=(d=new Date())=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const shift=(k,n)=>{const[y,m,d]=k.split('-').map(Number),x=new Date(y,m-1,d+n);return key(x)};
+const label=k=>new Date(k+'T00:00:00').toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const checks=()=>get('bkDailyChecks',{}),notes=()=>get('bkDailyNotes',{});
+function stats(){const all=checks(),today=key(),done=k=>(all[k]||[]).length;let streak=0,cur=done(today)?today:shift(today,-1);while(done(cur)>0&&streak<400){streak++;cur=shift(cur,-1)}let month=0,monthDone=0,days=0;for(let i=0;i<30;i++){const d=shift(today,-i),n=done(d);if(n){days++;monthDone+=n}if(d.slice(0,7)===today.slice(0,7))month+=n}return{streak,month,days,monthDone,today:done(today)}}
+function page(){const today=key(),all=checks(),done=new Set(all[today]||[]),s=stats(),pct=Math.round(done.size/tasks.length*100),rem=get('bkDailyReminder',{enabled:false,time:'07:00'});return `${MB.header('Daily Bhakti','உங்கள் தினசரி பக்தி பழக்கங்களை அன்புடன் பதிவு செய்யுங்கள்.')}
+ <section class="card dbt-hero"><div class="eyebrow">TODAY · ${label(today)}</div><h2>${pct===100?'இன்றைய பக்தி நிறைவு! 🙏':'ஒரு அமைதியான நாளைத் தொடங்குவோம்'}</h2><p>சிறிய நல்ல பழக்கங்கள் தினமும் மன அமைதியை வளர்க்க உதவும்.</p><div class="dbt-progress"><i style="width:${pct}%"></i></div><div class="dbt-progress-meta"><b>${done.size} / ${tasks.length} முடிந்தது</b><span>${pct}%</span></div></section>
+ <div class="section-head"><h2>இன்றைய வழிபாட்டு பட்டியல்</h2><span class="chip">${tasks.length} activities</span></div>
+ <section class="card dbt-task-list">${tasks.map(t=>`<label class="dbt-task ${done.has(t.id)?'is-done':''}"><input type="checkbox" data-dbt-task="${t.id}" ${done.has(t.id)?'checked':''}><span class="dbt-task-icon">${t.icon}</span><span class="dbt-task-copy"><b>${t.name}</b><small>${t.sub}</small></span><span class="dbt-check">✓</span></label>`).join('')}</section>
+ <div class="section-head"><h2>எனது தினசரி குறிப்பு</h2></div><section class="card"><textarea class="input dbt-note" id="dbtNote" rows="3" placeholder="இன்றைய எண்ணங்கள் அல்லது நன்றியை எழுதுங்கள்...">${esc(notes()[today]||'')}</textarea><button class="btn gold full" data-dbt-save-note>Save today's note</button></section>
+ <div class="section-head"><h2>உங்கள் பக்தி முன்னேற்றம்</h2></div><section class="card"><div class="dbt-stats"><div><b>${s.streak}</b><small>நாள் தொடர்</small></div><div><b>${s.month}</b><small>இந்த மாத நிறைவு</small></div><div><b>${s.days}</b><small>கடைசி 30 நாட்களில் செயல்பட்ட நாட்கள்</small></div></div><p class="feature-note">இது உங்கள் சொந்த பதிவு மட்டுமே; தினமும் முழுமையாகச் செய்ய வேண்டிய கட்டாயம் இல்லை.</p></section>
+ <div class="section-head"><h2>தினசரி நினைவூட்டல்</h2></div><section class="card dbt-reminder"><label class="dbt-toggle"><input type="checkbox" id="dbtReminderEnabled" ${rem.enabled?'checked':''}><span><b>நினைவூட்டலை இயக்கு</b><small>App திறந்திருக்கும் போது தேர்ந்தெடுத்த நேரத்தில் நினைவூட்டும்.</small></span></label><div class="field"><label for="dbtReminderTime">நேரம்</label><input class="input" id="dbtReminderTime" type="time" value="${esc(rem.time||'07:00')}"></div><button class="btn soft full" data-dbt-save-reminder>Save reminder</button></section>
+ <section class="card dbt-export"><b>Keep a copy of your tracker</b><p class="feature-note">Checklist மற்றும் notes-ஐ தனி JSON backup ஆக export செய்யலாம்.</p><button class="btn soft full" data-dbt-export>Export tracker backup</button></section>`}
+MB.pages.dailyBhakti=page;
+function addMenu(){if(MB.state.page!=='more')return;const cal=$('#pageContent [data-go="calendar"]'),card=cal?.closest('.more-list');if(card&&!card.querySelector('[data-go="dailyBhakti"]'))card.insertAdjacentHTML('beforeend','<button data-go="dailyBhakti"><span>🙏</span><div><b>Daily Bhakti</b><small>Daily pooja checklist & progress</small></div>›</button>')}
+const oldAfter=MB.after;MB.after=()=>{oldAfter&&oldAfter();addMenu()};
+document.addEventListener('change',e=>{if(e.target.matches('[data-dbt-task]')){const day=key(),all=checks(),setNow=new Set(all[day]||[]),id=e.target.dataset.dbtTask;e.target.checked?setNow.add(id):setNow.delete(id);all[day]=[...setNow];set('bkDailyChecks',all);MB.render();return}if(e.target.id==='dbtReminderEnabled'){const r=get('bkDailyReminder',{time:'07:00'});r.enabled=e.target.checked;set('bkDailyReminder',r)}});
+document.addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-dbt-save-note')){const all=notes();all[key()]=$('#dbtNote')?.value||'';set('bkDailyNotes',all);toast('இன்றைய குறிப்பு சேமிக்கப்பட்டது');return}if(b.hasAttribute('data-dbt-save-reminder')){const r=get('bkDailyReminder',{enabled:false});r.time=$('#dbtReminderTime')?.value||'07:00';r.enabled=$('#dbtReminderEnabled')?.checked??r.enabled;set('bkDailyReminder',r);if(r.enabled&&'Notification'in window&&Notification.permission==='default'){try{await Notification.requestPermission()}catch{}}toast(r.enabled?'Daily reminder saved':'Reminder time saved');checkReminder();return}if(b.hasAttribute('data-dbt-export')){const payload={version:1,checks:checks(),notes:notes(),reminder:get('bkDailyReminder',{})};const a=document.createElement('a'),url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));a.href=url;a.download='mithra-bhakti-daily-tracker.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Tracker backup exported');return}});
+function checkReminder(){const r=get('bkDailyReminder',{});if(!r.enabled)return;const now=new Date(),today=key(),hhmm=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;if(hhmm!==r.time||get('bkDailyReminderFired','')===today)return;const msg='இன்றைய பக்தி நேரம் 🙏 உங்கள் தினசரி பட்டியலைப் பார்க்கலாம்.';if('Notification'in window&&Notification.permission==='granted')new Notification('Mithra Bhakti',{body:msg,tag:'daily-bhakti-'+today});else toast(msg);set('bkDailyReminderFired',today)}
+setInterval(checkReminder,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkReminder()});
+})();
