@@ -1,4 +1,4 @@
-/* Mithra Bhakti — Songs & Lyrics module (v1.2): reader, auto-scroll, wake lock, Tanglish search, setlists */
+/* Mithra Bhakti — Songs & Lyrics module (v1.3): reader, auto-scroll, wake lock, Tanglish search, setlists, Now Playing lyrics */
 (()=>{
 const {state,get,set,esc,go,render,toast,header,$,content,MBDB}=MB;
 const CATS=["Bhajan","Slokam","Stotram","Thevaram","Thiruppugazh","Pasuram","Other"];
@@ -83,11 +83,11 @@ addEventListener("touchstart",()=>{if(raf)stopScroll()},{passive:true});
 let lock=null;
 async function wake(){try{if(prefs().wake!==false&&"wakeLock" in navigator&&!lock){lock=await navigator.wakeLock.request("screen");lock.addEventListener("release",()=>{lock=null})}}catch{}}
 function unwake(){try{lock&&lock.release()}catch{}lock=null}
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&state.page==="song")wake()});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&(state.page==="song"||state.page==="nowplaying"))wake()});
 
 /* ---------- Editor ---------- */
 function editor(){
-  const s=songs().find(x=>x.id===state.editId)||{title:"",deity:"Murugan",category:"Bhajan",lyrics:"",mediaId:""};
+  const s=songs().find(x=>x.id===state.editId)||{title:"",deity:"Murugan",category:"Bhajan",lyrics:"",mediaId:state.presetMedia||""};
   const media=(window._files||[]).filter(f=>f.category==="music"||f.category==="videos");
   return `${header(state.editId?"Edit song":"Add song","Type or paste Tamil lyrics.")}
   <div class="card">
@@ -140,7 +140,7 @@ content.addEventListener("click",async e=>{
   if(d.songBack!==undefined){if(state.setIdx!=null){state.setIdx=null;go("setlist")}else go("songs");scrollTo(0,0);return}
   if(d.songBackList!==undefined){go("songs");return}
   if(d.songEdit!==undefined){state.editId=state.songId;go("songEdit");scrollTo(0,0);return}
-  if(d.songCancel!==undefined){go(state.editId?"song":"songs");return}
+  if(d.songCancel!==undefined){if(state.presetMedia){state.presetMedia=null;go("music")}else go(state.editId?"song":"songs");return}
   if(d.songStar!==undefined){const a=songs(),s=a.find(x=>x.id===state.songId);if(s){s.fav=!s.fav;save(a);b.textContent=s.fav?"★":"☆"}return}
   if(d.songFs){const p=prefs();p.size=Math.max(14,Math.min(40,p.size+Number(d.songFs)*2));set("reader",p);$("#lyrics").style.fontSize=p.size+"px";$("#fsLabel").textContent=p.size;return}
   if(d.songLh!==undefined){const p=prefs();p.lh=LH[(LH.indexOf(p.lh)+1)%LH.length];set("reader",p);$("#lyrics").style.lineHeight=p.lh;return}
@@ -155,7 +155,7 @@ content.addEventListener("click",async e=>{
     const a=songs(),rec={title,lyrics,deity:$("#sDeity").value,category:$("#sCat").value,mediaId:$("#sMedia").value};
     if(state.editId){Object.assign(a.find(x=>x.id===state.editId),rec)}
     else{const id=uid();a.push({id,fav:false,createdAt:new Date().toISOString(),...rec});state.songId=id;state.setIdx=null}
-    save(a);if(state.editId)state.songId=state.editId;state.editId=null;go("song");scrollTo(0,0);toast("Song saved");
+    save(a);if(state.editId)state.songId=state.editId;const toNP=!!state.presetMedia;state.presetMedia=null;state.editId=null;go(toNP?"nowplaying":"song");scrollTo(0,0);toast("Song saved");
   }
 });
 content.addEventListener("click",e=>{
@@ -179,17 +179,58 @@ content.addEventListener("input",e=>{if(e.target.id==="songSearch"){state.songQ=
 async function mountSongMedia(){
   const mount=$("#songMedia"),s=songs().find(x=>x.id===state.songId);
   if(!mount||!s||!s.mediaId)return;
-  const f=await MBDB.get(s.mediaId);if(!f)return;
+  const f=await MBDB.get(s.mediaId);
+  if(!f){if(state.page==="nowplaying")mount.innerHTML='<p class="muted" style="font-size:12px">Linked audio file not found. Re-import it in Music and link again.</p>';return}
   const url=URL.createObjectURL(f.blob);if(state.songUrl)URL.revokeObjectURL(state.songUrl);state.songUrl=url;
   const el=document.createElement(f.category==="videos"?"video":"audio");el.controls=true;el.src=url;el.style.cssText="width:100%;margin-bottom:8px;border-radius:12px";if(f.category==="videos")el.playsInline=true;
   mount.append(el);
+  if(state.page==="nowplaying")el.play().catch(()=>{});
 }
-MB.pages.songs=songsPage;MB.pages.song=reader;MB.pages.songEdit=editor;MB.pages.setlists=setlistsPage;MB.pages.setlist=setlistPage;MB.pages.setPick=pickPage;
+
+/* ---------- Now Playing (audio + lyrics) and linking lyrics to Music files ---------- */
+const songForMedia=id=>songs().find(x=>String(x.mediaId)===String(id));
+MB.lyricsBtn=f=>songForMedia(f.id)?`<button data-np-open="${f.id}">♪ Lyrics</button>`:`<button data-np-link="${f.id}">+ Lyrics</button>`;
+function nowPlaying(){
+  const s=songs().find(x=>x.id===state.songId);
+  if(!s)return songsPage();
+  const p=prefs(),wk="wakeLock" in navigator;
+  return `<div class="reader-top"><button class="btn soft" data-np-back>‹ Music</button><div class="tools"><button class="icon-btn" data-song-star aria-label="Favourite">${s.fav?"★":"☆"}</button><button class="btn soft" data-np-reader>Reader</button></div></div>
+  <div class="np-player"><div id="songMedia"></div><div class="np-meta"><b class="song-title">${esc(s.title)}</b><small>${esc(s.deity)} · ${esc(s.category)}</small></div></div>
+  <div class="card tools"><button class="btn soft" data-song-fs="-1">A−</button><b id="fsLabel">${p.size}</b><button class="btn soft" data-song-fs="1">A+</button><button class="btn soft" data-song-lh>↕ Spacing</button></div>
+  <div class="card tools"><button class="btn gold" id="asBtn" data-song-as>▶ Auto-scroll</button><button class="btn soft" data-song-sp="-1">−</button><b id="spLabel">${p.speed}</b><button class="btn soft" data-song-sp="1">+</button>${wk?`<button class="btn soft ${p.wake!==false?"on":""}" id="wkBtn" data-song-wake>☀ Screen on</button>`:""}</div>
+  <article class="lyrics" id="lyrics" style="font-size:${p.size}px;line-height:${p.lh}">${esc(s.lyrics)}</article>`;
+}
+function linkRows(){
+  const q=(state.linkQ||"").trim().toLowerCase(),qk=q?key(q):"";
+  const l=songs().filter(s=>!q||(s.title+" "+s.deity).toLowerCase().includes(q)||(qk&&key(s.title+" "+s.deity).includes(qk)))
+    .sort((a,b)=>a.title.localeCompare(b.title,"ta"));
+  if(!l.length)return `<div class="empty"><div class="empty-icon">❀</div>${songs().length?"No songs match":"No songs yet. Create one below"}</div>`;
+  return l.map(s=>`<div class="list-item"><div class="list-icon">${s.mediaId?"♫":"❀"}</div><button class="list-main song-open" data-np-pick="${s.id}"><b>${esc(s.title)}</b><small>${esc(s.deity)} · ${esc(s.category)}${s.mediaId?" · has audio":""}</small></button></div>`).join("");
+}
+function linkPage(){
+  const f=(window._files||[]).find(x=>String(x.id)===String(state.linkMediaId));
+  if(!f)return MB.pages.music?MB.pages.music():songsPage();
+  return `<button class="btn soft" data-np-back style="margin-bottom:14px">‹ Music</button>${header("Link lyrics",esc(f.name))}
+  <button class="btn gold full" data-np-new style="margin-bottom:12px">+ New song with this audio</button>
+  <input class="input" id="npSearch" type="search" placeholder="Or pick an existing song (Tamil / Tanglish)…" value="${esc(state.linkQ||"")}" style="margin-bottom:12px">
+  <div class="card" id="npList">${linkRows()}</div>`;
+}
+content.addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;const d=b.dataset;
+  if(d.npOpen){const s=songForMedia(d.npOpen);if(!s){toast("No lyrics linked yet");return}state.setId=null;state.setIdx=null;state.songId=s.id;go("nowplaying");scrollTo(0,0);return}
+  if(d.npLink){state.linkMediaId=d.npLink;state.linkQ="";go("npLink");scrollTo(0,0);return}
+  if(d.npPick){const a=songs(),s=a.find(x=>x.id===d.npPick);if(!s)return;s.mediaId=String(state.linkMediaId);save(a);state.songId=s.id;state.setId=null;state.setIdx=null;go("nowplaying");scrollTo(0,0);toast("Lyrics linked");return}
+  if(d.npNew!==undefined){state.editId=null;state.presetMedia=String(state.linkMediaId);go("songEdit");scrollTo(0,0);return}
+  if(d.npBack!==undefined){go("music");scrollTo(0,0);return}
+  if(d.npReader!==undefined){go("song");scrollTo(0,0);return}
+});
+content.addEventListener("input",e=>{if(e.target.id==="npSearch"){state.linkQ=e.target.value;$("#npList").innerHTML=linkRows()}});
+MB.pages.nowplaying=nowPlaying;MB.pages.npLink=linkPage;MB.pages.songs=songsPage;MB.pages.song=reader;MB.pages.songEdit=editor;MB.pages.setlists=setlistsPage;MB.pages.setlist=setlistPage;MB.pages.setPick=pickPage;
 MB.after=()=>{
-  const on=NAV_PAGES.includes(state.page);
-  document.querySelectorAll(".nav-item").forEach(b=>{if(b.dataset.page==="songs")b.classList.toggle("active",on)});
+  const on=NAV_PAGES.includes(state.page),np=state.page==="nowplaying"||state.page==="npLink";
+  document.querySelectorAll(".nav-item").forEach(b=>{if(b.dataset.page==="songs")b.classList.toggle("active",on);if(b.dataset.page==="music")b.classList.toggle("active",np||state.page==="music")});
   stopScroll();
-  if(state.page==="song"){wake();mountSongMedia()}else unwake();
+  if(state.page==="song"||state.page==="nowplaying"){wake();mountSongMedia()}else unwake();
 };
 if(state.page==="dashboard")render();
 })();
