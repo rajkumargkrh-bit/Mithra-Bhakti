@@ -7,7 +7,7 @@ Mobile-first devotional PWA starter built with HTML, CSS and JavaScript.
 - **Reader tools (v1.2):** auto-scroll with speed control, screen wake lock, Tanglish search (type `murugan`, `kanda sasti` to find Tamil songs), bhajan setlists with reorder and Prev/Next play mode
 - Animated Mithra Bhakti splash screen and lettermark
 - Royal Purple + Gold default theme; White, Blue and Lavender themes
-- Bottom navigation: Home, Songs, Music, Menu
+- Bottom navigation: Home, Calendar, Player, Menu (Songs and Music Library remain available in Menu)
 - Menu: Songs & Lyrics, Setlists, Music, Videos, Books, Calendar, Files, Storage, Settings, About
 - Calendar event add/delete
 - Import local PDF books, audio, videos and general files
@@ -90,3 +90,9 @@ Festival date references used for the Bengaluru 2026 list: Nidarshana Vedh Benga
 - Smart Backup: exports app localStorage data plus IndexedDB media into one JSON file; restore merges data and skips media duplicates.
 
 These are additions. Existing pages, libraries, original backup/restore, calendar, and imported files are retained.
+
+
+## Bottom navigation update
+- Replaced duplicate-feeling Songs and Music bottom shortcuts with Calendar and the dedicated Advanced Music Player.
+- Songs & Lyrics and the full Music Library remain available from the Menu; the Player also links to the Music Library for importing audio.
+- Existing dashboard, theme, stored files, calendar events and other features are unchanged.
