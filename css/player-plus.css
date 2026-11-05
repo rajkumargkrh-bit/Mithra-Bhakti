@@ -30,3 +30,6 @@
 .pp-sheet-actions{display:flex;gap:8px;justify-content:center}
 .pp-sheet-actions .btn{flex:1}
 .pp-src{text-align:center;font-size:10px;color:#cdbfd8}
+
+/* formatted lyrics inside player sheet */
+.pp-lyrics-body.ly2{white-space:normal;padding:6px 4px 16px;color:#f3e9d6}.pp-lyrics-body .stz-tag{color:#f0d99e}

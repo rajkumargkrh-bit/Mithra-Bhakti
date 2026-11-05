@@ -1,0 +1,21 @@
+/* Bhakti Plus — additive styles (japam history, special days, synced lyrics) */
+.bk-card{margin-top:14px}
+.bk-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.bk-stats div{text-align:center;padding:10px 4px;border-radius:14px;background:rgba(214,173,88,.12)}
+.bk-stats b{display:block;font-size:20px}.bk-stats small{font-size:10px;opacity:.75}
+.bk-bars{display:flex;gap:8px;align-items:flex-end;height:110px;margin:12px 0}
+.bk-bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%}
+.bk-bar span{flex:1;width:100%;display:flex;align-items:flex-end;border-radius:8px;background:rgba(214,173,88,.12);overflow:hidden}
+.bk-bar i{display:block;width:100%;background:#d6ad58;border-radius:8px 8px 0 0;min-height:0}
+.bk-bar em{font-style:normal;font-size:9px;opacity:.8;min-height:11px}.bk-bar small{font-size:10px;opacity:.7}
+.bk-goal{display:flex;align-items:center;gap:10px;margin:10px 0}.bk-goal label{font-size:12px;font-weight:700;white-space:nowrap}
+.bk-rem{color:inherit;background:rgba(214,173,88,.12)}.bk-rem.on{background:#d6ad58;color:#2b1d3a}
+.bk-list{padding:6px 14px}
+.bk-row{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid rgba(214,173,88,.18)}
+.bk-ic{font-size:24px;line-height:1.2}.bk-main{min-width:0}.bk-main b{display:block;font-size:14px}.bk-main small{font-size:11px;opacity:.75}.bk-main p{margin:3px 0 0;font-size:12px;opacity:.85}
+.bk-list .btn.full{margin:12px 0 8px}
+.bk-sync-bar{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
+.bk-sync-bar small{font-size:11px;color:#cdbfd8}
+.bk-tap{flex:1;min-height:52px;font-size:15px;touch-action:manipulation}
+.pp-lyrics-body .ln{transition:background .25s,color .25s;border-radius:8px}
+.pp-lyrics-body .ln.bk-on{background:rgba(214,173,88,.25);color:#f0d99e;font-weight:700}
