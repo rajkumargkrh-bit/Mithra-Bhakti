@@ -105,3 +105,20 @@ These are additions. Existing pages, libraries, original backup/restore, calenda
 - **Synced lyrics:** open Player → Lyrics → "Sync lyrics", play and tap at the start of each line; lines then highlight and scroll with the audio. Timings are stored per track and included in Smart Backup.
 - **Install icons:** added PWA icons (192/512/maskable) and an Apple touch icon.
 - New files only: `js/bhakti-plus.js`, `css/bhakti-plus.css`, `icons/`. Small hooks: two tags in `index.html`, icons in `manifest.json`, cache bump in `service-worker.js`.
+
+
+## Phase 3 — Festival Calendar Plus (additive)
+
+- Added a separate Festival Calendar Plus page with Tamil Nadu reference festival dates for 2027 and 2028.
+- Added festival countdown, per-festival one-day-before reminders, and user-created special days.
+- Added a Monthly Bhakti Report based on the existing Daily Bhakti Tracker checklist and notes.
+- New data is isolated under `mb_fp*` Local Storage keys; existing data keys are not migrated or overwritten.
+- New files: `js/festival-plus.js` and `css/festival-plus.css`.
+- Festival dates are a Chennai/Tamil Nadu reference and can vary by locality or temple panchangam. Reference: Drik Panchang 2027 and 2028 Tamil calendars.
+
+## Phase 5 — Dashboard Plus (additive)
+- Added a home dashboard devotional overview with daily checklist completion, japam count, current streak, monthly activity and active days in the last 30 days.
+- Added editable personal goals for daily checklist activities and japam count.
+- Added quick access shortcuts to Daily Bhakti, Japam Counter, Special Days and Festival Plus.
+- Reads existing `bkDailyChecks` and `japamCounts` data without modifying those records; new goal preferences use the isolated `mb_dashboardPlus` key.
+- New files: `js/dashboard-plus.js` and `css/dashboard-plus.css`; linked additively from `index.html` and included in the service-worker cache.
