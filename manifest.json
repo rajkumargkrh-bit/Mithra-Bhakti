@@ -1,0 +1,10 @@
+{
+  "name": "Mithra Bhakti",
+  "short_name": "Mithra Bhakti",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#211633",
+  "theme_color": "#211633",
+  "description": "Your personal devotional space",
+  "icons": []
+}

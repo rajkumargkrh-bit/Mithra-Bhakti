@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#211633">
+  <meta name="description" content="Mithra Bhakti — your personal devotional space for books, music, videos and memories.">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/animation.css">
+  <title>Mithra Bhakti</title>
+</head>
+<body>
+  <div id="splash" class="splash" aria-label="Mithra Bhakti loading">
+    <div class="splash-mark">✦</div>
+    <div class="splash-name">MITHRA <span>BHAKTI</span></div>
+    <div class="splash-tag">உங்கள் பக்தி உலகம்</div>
+    <div class="splash-loader"></div>
+  </div>
+
+  <div id="app" class="app-shell hidden">
+    <header class="topbar">
+      <button class="brand" data-page="dashboard" aria-label="Go to dashboard">
+        <span class="brand-mark">✦</span><span><b>MITHRA BHAKTI</b><small>உங்கள் பக்தி உலகம்</small></span>
+      </button>
+      <button class="icon-btn" id="quickSettings" aria-label="Settings">⚙</button>
+    </header>
+
+    <main id="pageContent" class="page-content"></main>
+
+    <nav class="bottom-nav" aria-label="Main navigation">
+      <button class="nav-item active" data-page="dashboard"><span>⌂</span><small>Home</small></button>
+      <button class="nav-item" data-page="calendar"><span>▦</span><small>Calendar</small></button>
+      <button class="nav-item" data-page="books"><span>▤</span><small>Books</small></button>
+      <button class="nav-item" data-page="music"><span>♫</span><small>Music</small></button>
+      <button class="nav-item" data-page="more"><span>☰</span><small>More</small></button>
+    </nav>
+  </div>
+
+  <input id="filePicker" type="file" hidden multiple>
+  <input id="backupPicker" type="file" accept="application/json,.json" hidden>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="js/database.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
+    }
+  </script>
+</body>
+</html>
