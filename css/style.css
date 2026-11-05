@@ -9,3 +9,17 @@
 /* Phase 3 — built-in PDF reading tools */
 .pdf-viewer{display:block;width:100%;height:min(68vh,720px);min-height:430px;border:1px solid var(--line);border-radius:13px;background:#fff}
 .pdf-tools{margin-top:14px}.pdf-page-row{display:grid;grid-template-columns:minmax(64px,1fr) auto auto;gap:8px;align-items:center}.pdf-page-row .btn{padding:11px 12px}.pdf-hint{font-size:11px;line-height:1.5;margin:8px 0 14px}.pdf-bookmark{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.pdf-bookmark:last-child{border-bottom:0}.pdf-bookmark b{display:block;font-size:12px}.pdf-bookmark small{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+
+/* Royal Purple + Gold themed popup system */
+.mb-dialog{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:22px;background:rgba(22,13,32,.68);backdrop-filter:blur(7px)}
+.mb-dialog.hidden{display:none!important}.mb-dialog-card{width:min(100%,390px);padding:25px 21px 20px;border:1px solid #d6ad58;border-radius:24px;background:linear-gradient(155deg,#30203f,#211633 72%);color:#fff;box-shadow:0 24px 80px #10081988;text-align:center;animation:mbDialogIn .2s ease-out}
+.mb-dialog-emblem{width:48px;height:48px;margin:0 auto 12px;border-radius:16px;display:grid;place-items:center;color:#f0d99e;font-size:27px;background:linear-gradient(145deg,#684b7c,#392454);border:1px solid #d6ad5888;box-shadow:0 7px 20px #0004}
+.mb-dialog-card .eyebrow{color:#f0d99e}.mb-dialog-card h2{color:#fff;margin:7px 0 9px;font-size:19px}.mb-dialog-card p{color:#e4d9ec;font-size:13px;line-height:1.55;margin:0 0 15px;white-space:pre-wrap}.mb-dialog-card .input{background:#fff;color:#251b35;border-color:#d6ad58;text-align:left;margin-bottom:8px}
+.mb-dialog-actions{display:flex;gap:10px;margin-top:14px}.mb-dialog-actions .btn{flex:1}.mb-dialog-actions .btn.danger{background:#a63e52;color:#fff}
+@keyframes mbDialogIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.more-list.card{border:1px solid color-mix(in srgb,var(--gold) 34%,var(--line));box-shadow:0 7px 22px #2415350b}
+.more-list button{position:relative;min-height:68px;padding:12px 15px;gap:13px;transition:background .18s ease}
+.more-list button:hover,.more-list button:focus-visible{background:var(--surface2);outline:none}
+.more-list button>span{width:39px;height:39px;flex:0 0 39px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(145deg,var(--primary),#684b7c);color:var(--gold2);border:1px solid color-mix(in srgb,var(--gold) 60%,transparent);font-size:19px}
+.more-list button>div{flex:1;min-width:0}.more-list button>b{font-size:13px}.more-list button>div small{font-size:11px}
+.more-list button:last-child{border-bottom:0}
