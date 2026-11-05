@@ -7,8 +7,8 @@ Mobile-first devotional PWA starter built with HTML, CSS and JavaScript.
 - **Reader tools (v1.2):** auto-scroll with speed control, screen wake lock, Tanglish search (type `murugan`, `kanda sasti` to find Tamil songs), bhajan setlists with reorder and Prev/Next play mode
 - Animated Mithra Bhakti splash screen and lettermark
 - Royal Purple + Gold default theme; White, Blue and Lavender themes
-- Bottom navigation: Home, Calendar, Books, Music, More
-- More menu: Storage, Files, Videos, Settings, About
+- Bottom navigation: Home, Songs, Music, Menu
+- Menu: Songs & Lyrics, Setlists, Music, Videos, Books, Calendar, Files, Storage, Settings, About
 - Calendar event add/delete
 - Import local PDF books, audio, videos and general files
 - IndexedDB binary file storage; LocalStorage for preferences and events
@@ -63,3 +63,20 @@ Festival date references used for the Bengaluru 2026 list: Nidarshana Vedh Benga
 - Imported PDF files remain in IndexedDB; JSON backups include bookmark metadata, not the PDF bytes.
 - Some mobile browsers do not display embedded PDFs. Use the "Open PDF in browser" fallback in that case.
 - Existing app pages, styles, features, and stored data are retained.
+
+
+## Phase 4 — Music lyrics (v1.4)
+- Every audio file on the Music page now has a **Lyrics** button.
+  - `♪ Lyrics` opens the Now Playing screen: sticky audio/video player with the Tamil lyrics below it.
+  - `+ Lyrics` lets you link the audio to an existing song, or create a new song with that audio already attached.
+- Now Playing has font size, spacing, auto-scroll with speed control and screen-on (wake lock), same as the lyrics reader.
+- Leaving the Now Playing screen stops playback (the player lives on that page).
+- Linking uses the song's existing "Linked audio / video" field, so you can also change it from the song editor.
+- Backup stores the song-to-audio link, but not the audio file itself. After restoring on a new device, re-import the audio and link it again.
+- Next: synced (karaoke-style) lyrics with tap-to-sync timestamps.
+
+## Menu (v1.4.1)
+- The bottom bar is now Home, Songs, Music and Menu, so it no longer feels crowded.
+- Menu lists everything, grouped as Library, Plan, Manage and App, with counts (songs, setlists, audio, videos, books).
+- Calendar and Books moved into the Menu; Menu stays highlighted while you are on them.
+- Fixed: the bottom bar highlight no longer disappears on the lyrics reader and Now Playing pages.
