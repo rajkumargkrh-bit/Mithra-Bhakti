@@ -80,3 +80,13 @@ Festival date references used for the Bengaluru 2026 list: Nidarshana Vedh Benga
 - Menu lists everything, grouped as Library, Plan, Manage and App, with counts (songs, setlists, audio, videos, books).
 - Calendar and Books moved into the Menu; Menu stays highlighted while you are on them.
 - Fixed: the bottom bar highlight no longer disappears on the lyrics reader and Now Playing pages.
+
+
+## Additive devotional tools (v1.5)
+- Japam Counter: per-day mantra counts and 108-count mala tracking, stored locally.
+- Daily Reminder: configurable morning/evening reminders. Notifications are checked while the app is open; reliable closed-app scheduling requires native Android scheduling or a push service.
+- Festival Special: a separate upcoming-festival view; dates should be verified against the user's local panchangam.
+- Advanced Music Player: local audio queue, shuffle, repeat and favourites; background playback depends on browser/device support.
+- Smart Backup: exports app localStorage data plus IndexedDB media into one JSON file; restore merges data and skips media duplicates.
+
+These are additions. Existing pages, libraries, original backup/restore, calendar, and imported files are retained.
