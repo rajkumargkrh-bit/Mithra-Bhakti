@@ -111,4 +111,6 @@ const reminderCheck=()=>{const r=get('dailyReminders',{enabled:false});if(!r.ena
 setInterval(reminderCheck,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)reminderCheck()});
 // Extend the existing music audio element with repeat behavior without touching its controls.
 
+// Additive hook so player-plus.js can reuse the existing queue/player without modifying it.
+MB.player={playTrack,setQueue:q=>{queue=Array.isArray(q)?q:[];queueIndex=0},current:currentTrack,getQueue:()=>queue.slice(),ensure:ensureMiniPlayer};
 })();
