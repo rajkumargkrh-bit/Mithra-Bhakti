@@ -17,3 +17,23 @@
 .home-empty{flex-wrap:wrap}
 .home-empty>div{flex:1;min-width:130px}
 @media(max-width:380px){.home-feature-card,.home-festival-list,.home-recent-list{padding:8px 12px}.home-feature-copy b{font-size:13px}}
+
+/* Persistent mini player + custom playlists */
+.mb-mini-player{position:fixed;z-index:40;left:12px;right:12px;bottom:calc(82px + env(safe-area-inset-bottom));display:none;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid rgba(105,72,125,.18);border-radius:18px;background:rgba(255,255,255,.97);box-shadow:0 8px 28px rgba(45,24,59,.18);backdrop-filter:blur(16px)}
+.mb-mini-player.is-visible{display:flex}
+.mb-mini-info{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.mb-mini-art{width:40px;height:40px;flex:0 0 40px;display:grid;place-items:center;border-radius:13px;background:#f2e9f6;color:#563366;font-size:21px}
+.mb-mini-copy{display:flex;flex-direction:column;min-width:0;gap:3px}
+.mb-mini-copy b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#2b2033}
+.mb-mini-copy small{font-size:10px;color:#82758a}
+.mb-mini-controls{display:flex;align-items:center;gap:5px}
+.mb-mini-controls button{border:0;border-radius:50%;width:34px;height:34px;background:#f3edf6;color:#4c315b;font-size:15px;font-weight:700}
+.mb-mini-controls button[data-mini="toggle"]{background:#563366;color:white;width:39px;height:39px}
+.mb-playlist-list{margin-top:8px}
+.mb-playlist-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(100,75,110,.12)}
+.mb-playlist-row:last-child{border-bottom:0}
+.mb-playlist-row .list-main{flex:1;text-align:left;background:none;border:0;color:inherit;padding:6px}
+.mb-playlist-row .list-main b,.mb-playlist-row .list-main small{display:block}
+.mb-playlist-row .list-main small{font-size:11px;color:var(--muted,#817887);margin-top:3px}
+.mb-add-playlist{min-width:34px;padding:7px!important}
+@media(max-width:390px){.mb-mini-player{left:8px;right:8px;padding:8px}.mb-mini-controls{gap:2px}.mb-mini-controls button{width:30px;height:30px}.mb-mini-controls button[data-mini="toggle"]{width:35px;height:35px}}
