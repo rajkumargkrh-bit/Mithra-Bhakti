@@ -105,7 +105,7 @@ function renderLyrics(){
   <div class="pp-sheet-top"><div class="pp-sheet-title"><small>LYRICS</small><b>${esc(t.name)}</b></div><button type="button" class="pp-x" data-pp-lyrics-close aria-label="Close">✕</button></div>
   ${editing?`<textarea id="ppLyricsText" class="input pp-textarea" rows="12" placeholder="வரிகளை இங்கே ஒட்டவும்…">${esc(L.text)}</textarea>
   <div class="pp-sheet-actions"><button type="button" class="btn gold" data-pp-lyrics-save>Save</button>${L.text?'<button type="button" class="btn soft" data-pp-lyrics-cancel>Cancel</button>':''}</div>`
-  :`<div class="pp-lyrics-body" style="font-size:${fs}px">${esc(L.text)}</div>
+  :`<div class="pp-lyrics-body lyrics ly2 al-center rt-night" style="font-size:${fs}px">${MB.lyricsHtml?MB.lyricsHtml(L.text):esc(L.text)}</div>
   <div class="pp-sheet-actions"><button type="button" class="btn soft" data-pp-fs="-1">A−</button><button type="button" class="btn soft" data-pp-fs="1">A+</button><button type="button" class="btn soft" data-pp-lyrics-edit>✎ Edit</button></div>
   ${L.src==='songs'?'<small class="pp-src">Songs &amp; Lyrics-ல் இருந்து எடுக்கப்பட்டது</small>':''}`}
  </section>`;
@@ -117,6 +117,8 @@ function openLyrics(){
 }
 
 /* ---------- events ---------- */
+document.addEventListener('paste',e=>{const t=e.target;if(t.id!=='ppLyricsText'||!MB.autoFormat)return;const empty=!t.value.trim();setTimeout(()=>{t.value=empty?MB.autoFormat(t.value,''):MB.cleanLyrics(t.value);if(empty)toast('Lyrics arranged for reading ✓')},0)});
+document.addEventListener('click',e=>{const st=e.target.closest('.pp-lyrics-body .stz');if(!st)return;const art=st.closest('.pp-lyrics-body'),was=st.classList.contains('on');art.querySelectorAll('.stz.on').forEach(x=>x.classList.remove('on'));art.classList.toggle('has-focus',!was);if(!was)st.classList.add('on')});
 document.addEventListener('input',e=>{if(e.target.id==='ppSeek'){S.seeking=true;const c=$('#ppCur');if(c)c.textContent=fmt(e.target.value);const d=audio&&audio.duration;if(d>0)e.target.style.setProperty('--pp-fill',(e.target.value/d*100)+'%')}});
 document.addEventListener('change',e=>{if(e.target.id==='ppSeek'){if(audio&&isFinite(audio.duration)){audio.currentTime=Number(e.target.value);S.lastT=audio.currentTime}S.seeking=false}});
 document.addEventListener('click',async e=>{
@@ -127,7 +129,7 @@ document.addEventListener('click',async e=>{
  if(d.ppLyricsClose!==undefined){closeLyrics();return}
  if(d.ppLyricsEdit!==undefined){S.lyricsEdit=true;renderLyrics();return}
  if(d.ppLyricsCancel!==undefined){S.lyricsEdit=false;renderLyrics();return}
- if(d.ppLyricsSave!==undefined){const t=MB.player.current(),txt=($('#ppLyricsText')?.value||'').trim(),all=lyricsStore();if(!t)return;if(txt)all[String(t.id)]=txt;else delete all[String(t.id)];set('ppLyrics',all);S.lyricsEdit=false;renderLyrics();toast(txt?'Lyrics saved':'Lyrics removed');return}
+ if(d.ppLyricsSave!==undefined){const t=MB.player.current(),txt=MB.cleanLyrics?MB.cleanLyrics($('#ppLyricsText')?.value||''):($('#ppLyricsText')?.value||'').trim(),all=lyricsStore();if(!t)return;if(txt)all[String(t.id)]=txt;else delete all[String(t.id)];set('ppLyrics',all);S.lyricsEdit=false;renderLyrics();toast(txt?'Lyrics saved':'Lyrics removed');return}
  if(d.ppFs!==undefined){const fs=Math.max(14,Math.min(40,get('ppLyricsFs',20)+Number(d.ppFs)*2));set('ppLyricsFs',fs);renderLyrics();return}
  if(d.ppFavAll!==undefined||d.ppFavPlay!==undefined){
   const ids=get('advancedMusicFavs',[]).map(String),files=(window._files||[]).filter(f=>f.category==='music'&&ids.includes(String(f.id))),items=files.map(f=>({id:f.id,name:f.name}));

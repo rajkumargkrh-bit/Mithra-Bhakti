@@ -280,7 +280,7 @@ content.addEventListener("click",async e=>{
   if(d.npReader!==undefined){go("song");scrollTo(0,0);return}
 });
 content.addEventListener("input",e=>{if(e.target.id==="npSearch"){state.linkQ=e.target.value;$("#npList").innerHTML=linkRows()}});
-MB.pages.nowplaying=nowPlaying;MB.pages.npLink=linkPage;MB.pages.songs=songsPage;MB.pages.song=reader;MB.pages.songEdit=editor;MB.pages.setlists=setlistsPage;MB.pages.setlist=setlistPage;MB.pages.setPick=pickPage;
+MB.lyricsHtml=lyricsHtml;MB.cleanLyrics=cleanLyrics;MB.autoFormat=autoFormat;MB.pages.nowplaying=nowPlaying;MB.pages.npLink=linkPage;MB.pages.songs=songsPage;MB.pages.song=reader;MB.pages.songEdit=editor;MB.pages.setlists=setlistsPage;MB.pages.setlist=setlistPage;MB.pages.setPick=pickPage;
 MB.after=()=>{
   const on=NAV_PAGES.includes(state.page),np=state.page==="nowplaying"||state.page==="npLink";
   document.querySelectorAll(".nav-item").forEach(b=>{if(b.dataset.page==="songs")b.classList.toggle("active",on);if(b.dataset.page==="music")b.classList.toggle("active",np||state.page==="music")});
