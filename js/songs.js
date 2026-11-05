@@ -148,7 +148,7 @@ content.addEventListener("click",async e=>{
   if(d.songSp){const p=prefs();p.speed=Math.max(1,Math.min(5,p.speed+Number(d.songSp)));spd=p.speed;set("reader",p);$("#spLabel").textContent=p.speed;return}
   if(d.songWake!==undefined){const p=prefs(),on=p.wake===false;p.wake=on;set("reader",p);b.classList.toggle("on",on);on?wake():unwake();toast(on?"Screen stays on":"Screen may sleep");return}
   if(d.songCopy!==undefined){const s=cur();if(!s)return;try{await navigator.clipboard.writeText(s.title+"\n\n"+s.lyrics);toast("Lyrics copied")}catch{toast("Copy not supported")}return}
-  if(d.songDel!==undefined){if(confirm("Delete this song?")){const id=state.editId;save(songs().filter(x=>x.id!==id));saveSets(sets().map(s=>({...s,songIds:s.songIds.filter(q=>q!==id)})));state.editId=null;state.songId=null;state.setId=null;state.setIdx=null;go("songs");toast("Song deleted")}return}
+  if(d.songDel!==undefined){if(await MB.dialog.confirm("Delete this song?",{title:"Delete song",confirmText:"Delete",danger:true})){const id=state.editId;save(songs().filter(x=>x.id!==id));saveSets(sets().map(s=>({...s,songIds:s.songIds.filter(q=>q!==id)})));state.editId=null;state.songId=null;state.setId=null;state.setIdx=null;go("songs");toast("Song deleted")}return}
   if(d.songSave!==undefined){
     const title=$("#sTitle").value.trim(),lyrics=$("#sLyrics").value.trim();
     if(!title||!lyrics){toast("Title and lyrics are required");return}
@@ -158,19 +158,19 @@ content.addEventListener("click",async e=>{
     save(a);if(state.editId)state.songId=state.editId;const toNP=!!state.presetMedia;state.presetMedia=null;state.editId=null;go(toNP?"nowplaying":"song");scrollTo(0,0);toast("Song saved");
   }
 });
-content.addEventListener("click",e=>{
+content.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;const d=b.dataset;
   if(d.songSets!==undefined){go("setlists");scrollTo(0,0);return}
   if(d.setList!==undefined){state.setId=null;go("setlists");return}
-  if(d.setNew!==undefined){const name=(prompt("Setlist name")||"").trim();if(!name)return;const a=sets(),id=uid();a.push({id,name,songIds:[]});saveSets(a);state.setId=id;go("setlist");return}
+  if(d.setNew!==undefined){const name=((await MB.dialog.prompt("Setlist name","",{title:"New setlist"}))||"").trim();if(!name)return;const a=sets(),id=uid();a.push({id,name,songIds:[]});saveSets(a);state.setId=id;go("setlist");return}
   if(d.setOpen){state.setId=d.setOpen;go("setlist");scrollTo(0,0);return}
   if(d.setPick!==undefined){go("setPick");scrollTo(0,0);return}
   if(d.setDone!==undefined){go("setlist");return}
   if(d.setToggle){const a=sets(),s=a.find(x=>x.id===state.setId);if(!s)return;const i=s.songIds.indexOf(d.setToggle);i<0?s.songIds.push(d.setToggle):s.songIds.splice(i,1);saveSets(a);render();return}
   if(d.setMv){const [i,dir]=d.setMv.split(":").map(Number),a=sets(),s=a.find(x=>x.id===state.setId),j=i+dir;if(!s||j<0||j>=s.songIds.length)return;[s.songIds[i],s.songIds[j]]=[s.songIds[j],s.songIds[i]];saveSets(a);render();return}
   if(d.setRm!==undefined){const a=sets(),s=a.find(x=>x.id===state.setId);if(!s)return;s.songIds.splice(Number(d.setRm),1);saveSets(a);render();return}
-  if(d.setRename!==undefined){const a=sets(),s=a.find(x=>x.id===state.setId);const name=(prompt("Setlist name",s&&s.name)||"").trim();if(!s||!name)return;s.name=name;saveSets(a);render();return}
-  if(d.setDelete!==undefined){if(confirm("Delete this setlist? Songs stay in your book.")){saveSets(sets().filter(x=>x.id!==state.setId));state.setId=null;go("setlists");toast("Setlist deleted")}return}
+  if(d.setRename!==undefined){const a=sets(),s=a.find(x=>x.id===state.setId);const name=((await MB.dialog.prompt("Setlist name",s&&s.name||"",{title:"Rename setlist"}))||"").trim();if(!s||!name)return;s.name=name;saveSets(a);render();return}
+  if(d.setDelete!==undefined){if(await MB.dialog.confirm("Delete this setlist? Songs stay in your book.",{title:"Delete setlist",confirmText:"Delete",danger:true})){saveSets(sets().filter(x=>x.id!==state.setId));state.setId=null;go("setlists");toast("Setlist deleted")}return}
   if(d.setStart!==undefined||d.setPlay!==undefined){const s=curSet();if(!s||!s.songIds.length){toast("Add songs first");return}const i=d.setPlay!==undefined?Number(d.setPlay):0;state.setIdx=i;state.songId=s.songIds[i];go("song");scrollTo(0,0);return}
   if(d.setNav){const s=curSet();if(!s)return;const i=state.setIdx+Number(d.setNav);if(i<0||i>=s.songIds.length)return;state.setIdx=i;state.songId=s.songIds[i];render();scrollTo(0,0)}
 });
@@ -215,7 +215,7 @@ function linkPage(){
   <input class="input" id="npSearch" type="search" placeholder="Or pick an existing song (Tamil / Tanglish)…" value="${esc(state.linkQ||"")}" style="margin-bottom:12px">
   <div class="card" id="npList">${linkRows()}</div>`;
 }
-content.addEventListener("click",e=>{
+content.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;const d=b.dataset;
   if(d.npOpen){const s=songForMedia(d.npOpen);if(!s){toast("No lyrics linked yet");return}state.setId=null;state.setIdx=null;state.songId=s.id;go("nowplaying");scrollTo(0,0);return}
   if(d.npLink){state.linkMediaId=d.npLink;state.linkQ="";go("npLink");scrollTo(0,0);return}
