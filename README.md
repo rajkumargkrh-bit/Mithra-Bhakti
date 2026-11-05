@@ -97,3 +97,11 @@ These are additions. Existing pages, libraries, original backup/restore, calenda
 - Replaced duplicate-feeling Songs and Music bottom shortcuts with Calendar and the dedicated Advanced Music Player.
 - Songs & Lyrics and the full Music Library remain available from the Menu; the Player also links to the Music Library for importing audio.
 - Existing dashboard, theme, stored files, calendar events and other features are unchanged.
+
+
+## Bhakti Plus (v1.6) — additive
+- **Japam history:** streak, last-7-days bars, month total, best day and a daily mala goal, shown under the Japam Counter.
+- **Special Days (Menu → Devotional Tools):** Ekadashi, Pradosham, Sankashti, Vinayagar Chaturthi, Shashti, Karthigai, Pournami, Amavasai computed from the built-in panchangam, with optional reminders (day before + same day) and a short 2027 festival list. Verify dates with your local panchangam.
+- **Synced lyrics:** open Player → Lyrics → "Sync lyrics", play and tap at the start of each line; lines then highlight and scroll with the audio. Timings are stored per track and included in Smart Backup.
+- **Install icons:** added PWA icons (192/512/maskable) and an Apple touch icon.
+- New files only: `js/bhakti-plus.js`, `css/bhakti-plus.css`, `icons/`. Small hooks: two tags in `index.html`, icons in `manifest.json`, cache bump in `service-worker.js`.
