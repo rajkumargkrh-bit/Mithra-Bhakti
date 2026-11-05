@@ -7,7 +7,7 @@ const LH=[1.5,1.9,2.3], SPEEDS=[8,16,26,38,55];
 const songs=()=>get("songs",[]), save=a=>set("songs",a);
 const sets=()=>get("setlists",[]), saveSets=a=>set("setlists",a);
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-const prefs=()=>({size:20,lh:1.9,speed:2,...get("reader",{})});
+const prefs=()=>({size:20,lh:1.9,speed:2,align:"left",rt:"paper",...get("reader",{})});
 const opts=(arr,sel)=>arr.map(x=>`<option ${x===sel?"selected":""}>${esc(x)}</option>`).join("");
 const NAV_PAGES=["songs","song","songEdit","setlists","setlist","setPick"];
 
@@ -22,6 +22,48 @@ function fold(s){return s.toLowerCase().replace(/zh/g,"l").replace(/ch|sh/g,"s")
 const keyCache=new Map();
 const key=t=>{let k=keyCache.get(t);if(k===undefined){k=fold(ta2en(t));keyCache.set(t,k)}return k};
 
+
+/* ---------- Lyrics formatting: paste cleanup + stanza-aware rendering ---------- */
+const DEITY_ICON={Murugan:"🦚",Vinayagar:"🐘",Shiva:"🔱",Amman:"🌺",Perumal:"🐚",Ayyappan:"🕉",Hanuman:"🚩","Sai Baba":"🙏",Other:"🪔"};
+const dIcon=d=>DEITY_ICON[d]||"🪔";
+const SECRE=/^[\s\[\(\{<*#\-–—•]*(பல்லவி|அனுபல்லவி|சரணம்|சரணங்கள்|காப்பு|விருத்தம்|வெண்பா|பாடல்|pallavi|anupallavi|charanam|saranam|kaappu|verse|chorus|refrain|bridge|intro|outro)\s*[\d\u0BE6-\u0BEF]*[\s\]\)\}>*:.\-–—]*$/i;
+const REP=/\s*[\(\[]?\s*(?:[x×*]\s*(\d{1,3})|(\d{1,3})\s*(?:முறை|times|x|×))\s*[\)\]]?\s*$/i;
+function cleanLyrics(t){
+  return String(t||"").replace(/\r\n?/g,"\n").replace(/[\u200b\u200e\u200f\ufeff]/g,"").replace(/[\u00a0\t]/g," ")
+    .split("\n").map(l=>l.replace(/[ ]{2,}/g," ").trim()).join("\n").replace(/\n{3,}/g,"\n\n").trim();
+}
+function autoFormat(t,title){
+  let x=cleanLyrics(t),L=x.split("\n");
+  if(title&&L[0]&&L[0].replace(/[^\w\u0B80-\u0BFF]/g,"")===String(title).replace(/[^\w\u0B80-\u0BFF]/g,"")){L.shift();x=L.join("\n").trim()}
+  if(!/\n\s*\n/.test(x)){const a=x.split("\n").filter(Boolean);if(a.length>6){const g=[];for(let i=0;i<a.length;i+=4)g.push(a.slice(i,i+4).join("\n"));x=g.join("\n\n")}}
+  return x;
+}
+function parseLyrics(text){
+  const out=[];let pend="";
+  for(const b of cleanLyrics(text).split(/\n\s*\n/)){
+    const lines=b.split("\n").map(x=>x.trim()).filter(Boolean);if(!lines.length)continue;
+    let label=pend,num="";pend="";
+    const NUM=/^([0-9\u0BE6-\u0BEF]{1,3})\s*[.)\-:]\s+(.+)$/,m0=lines[0].match(NUM);
+    if(m0&&SECRE.test(m0[2])){num=m0[1];lines[0]=m0[2]}
+    if(SECRE.test(lines[0])){label=lines.shift().replace(/^[^\w\u0B80-\u0BFF]+|[^\w\u0B80-\u0BFF]+$/g,"")}
+    if(!lines.length){pend=label;continue}
+    if(!num){const m=lines[0].match(NUM);if(m){num=m[1];lines[0]=m[2]}}
+    out.push({label,num,lines:lines.map(l=>{const r=l.match(REP);return r&&r.index>0?{t:l.slice(0,r.index).trim(),rep:r[1]||r[2]}:{t:l}})});
+  }
+  if(pend)out.push({label:pend,num:"",lines:[]});
+  return out;
+}
+function lyricsHtml(text){
+  return parseLyrics(text).map((s,i)=>`<section class="stz" data-stz="${i}">${s.label||s.num?`<div class="stz-tag">${s.num?`<b>${esc(s.num)}</b>`:""}${s.label?`<span>${esc(s.label)}</span>`:""}</div>`:""}${s.lines.map(l=>`<p class="ln">${esc(l.t)}${l.rep?`<i class="rep">×${esc(l.rep)}</i>`:""}</p>`).join("")}</section>`).join("");
+}
+const RT_NAMES={paper:"Paper",warm:"Warm",night:"Night"},RT_ORDER=["paper","warm","night"];
+function lyricBlock(s,p){
+  return `<div class="lyrics-wrap rt-${p.rt}" id="lyricsWrap"><article class="lyrics ly2 al-${p.align}" id="lyrics" style="font-size:${p.size}px;line-height:${p.lh}">${lyricsHtml(s.lyrics)}</article></div>`;
+}
+function readTools(p,copy){
+  return `<div class="card tools rd-tools"><button class="btn soft" data-song-fs="-1">A−</button><b id="fsLabel">${p.size}</b><button class="btn soft" data-song-fs="1">A+</button><button class="btn soft" data-song-lh aria-label="Line spacing">↕</button><button class="btn soft" data-song-align aria-label="Alignment" id="alBtn">${p.align==="center"?"☰ Left":"☷ Centre"}</button><button class="btn soft" data-song-rt id="rtBtn">◐ ${RT_NAMES[p.rt]||"Paper"}</button>${copy?`<button class="btn soft" data-song-copy>⎘ Copy</button>`:""}</div>`;
+}
+
 /* ---------- Songs list ---------- */
 function filtered(){
   const q=(state.songQ||"").trim().toLowerCase(),qk=q?key(q):"";
@@ -31,19 +73,22 @@ function filtered(){
 }
 function rows(){
   const l=filtered();
-  if(!l.length)return `<div class="empty"><div class="empty-icon">❀</div>${songs().length?"No songs match":"No songs yet. Tap “+ Add song”"}</div>`;
-  return l.map(s=>`<div class="list-item"><div class="list-icon">${s.fav?"★":"❀"}</div><button class="list-main song-open" data-song-open="${s.id}"><b>${esc(s.title)}</b><small>${esc(s.deity)} · ${esc(s.category)}</small></button></div>`).join("");
+  if(!l.length){
+    const none=!songs().length;
+    return `<div class="sg-empty"><div class="sg-empty-ring">❀</div><b>${none?"Your lyrics book is empty":"No songs match"}</b><small>${none?"Paste your first Tamil song and it will be arranged for easy reading.":"Try a different word, or clear the filters."}</small>${none?`<button class="sg-add dark" data-song-add><i>＋</i> Add your first song</button>`:""}</div>`;
+  }
+  return l.map(s=>{const ci=Math.max(0,CATS.indexOf(s.category));return `<div class="sg-item"><button class="sg-open" data-song-open="${s.id}"><span class="sg-av c${ci}">${dIcon(s.deity)}</span><span class="sg-txt"><b>${esc(s.title)}</b><small><em>${esc(s.deity)}</em><em>${esc(s.category)}</em>${s.mediaId?`<em class="aud">♫ audio</em>`:""}</small></span></button><button class="sg-star ${s.fav?"on":""}" data-song-qstar="${s.id}" aria-label="Favourite">${s.fav?"★":"☆"}</button></div>`}).join("");
 }
 function songsPage(){
   const chip=(label,attr,on)=>`<button class="chip-btn ${on?"on":""}" ${attr}>${label}</button>`;
-  const dl=[...new Set(songs().map(s=>s.deity))].sort();
+  const all=songs(),dl=[...new Set(all.map(s=>s.deity))].sort();
   return `${header("Songs","Your Tamil lyrics book.")}
-  <div class="card row"><div><b>${songs().length} songs</b><div class="muted" style="font-size:11px">Stored on this device</div></div><button class="btn gold" data-song-add>+ Add song</button></div>
-  <button class="btn soft full" data-song-sets style="margin-bottom:12px">♪ Setlists (${sets().length})</button>
-  <input class="input" id="songSearch" type="search" placeholder="Search Tamil or Tanglish (murugan, kanda sasti)…" value="${esc(state.songQ||"")}" style="margin-bottom:12px">
+  <section class="sg-hero"><div class="sg-hero-top"><div><div class="sg-count">${all.length}</div><div class="sg-count-l">${all.length===1?"song":"songs"} <span>· பாடல்கள்</span></div></div><button class="sg-add" data-song-add><i>＋</i> Add song</button></div>
+  <div class="sg-hero-foot"><button class="sg-pill" data-song-sets>♪ Setlists <b>${sets().length}</b></button><span class="sg-dev">Stored on this device</span></div></section>
+  <label class="sg-search"><span>⌕</span><input class="sg-input" id="songSearch" type="search" placeholder="Search Tamil or Tanglish (murugan, kanda sasti)…" value="${esc(state.songQ||"")}"></label>
   <div class="chips">${chip("★ Favourites","data-song-fav",state.songFav)}${chip("All","data-song-cat=\"\"",!state.songCat)}${CATS.map(c=>chip(c,`data-song-cat="${c}"`,state.songCat===c)).join("")}</div>
-  ${dl.length?`<div class="chips">${chip("All deities","data-song-deity=\"\"",!state.songDeity)}${dl.map(x=>chip(esc(x),`data-song-deity="${esc(x)}"`,state.songDeity===x)).join("")}</div>`:""}
-  <div class="card" id="songList">${rows()}</div>`;
+  ${dl.length?`<div class="chips">${chip("All deities","data-song-deity=\"\"",!state.songDeity)}${dl.map(x=>chip(dIcon(x)+" "+esc(x),`data-song-deity="${esc(x)}"`,state.songDeity===x)).join("")}</div>`:""}
+  <div id="songList" class="sg-list">${rows()}</div>`;
 }
 
 /* ---------- Reader ---------- */
@@ -57,11 +102,11 @@ function reader(){
   if(!s)return songsPage();
   const p=prefs(),inSet=state.setIdx!=null,bar=setBar(),wk="wakeLock" in navigator;
   return `<div class="reader-top"><button class="btn soft" data-song-back>‹ ${inSet?"Setlist":"Songs"}</button><div class="tools"><button class="icon-btn" data-song-star aria-label="Favourite">${s.fav?"★":"☆"}</button><button class="icon-btn" data-song-edit aria-label="Edit">✎</button></div></div>
-  ${bar}<div class="eyebrow">${esc(s.deity)} · ${esc(s.category)}</div><h1 class="song-title">${esc(s.title)}</h1>
-  <div class="card tools"><button class="btn soft" data-song-fs="-1">A−</button><b id="fsLabel">${p.size}</b><button class="btn soft" data-song-fs="1">A+</button><button class="btn soft" data-song-lh>↕ Spacing</button><button class="btn soft" data-song-copy>Copy</button></div>
-  <div class="card tools"><button class="btn gold" id="asBtn" data-song-as>▶ Auto-scroll</button><button class="btn soft" data-song-sp="-1">−</button><b id="spLabel">${p.speed}</b><button class="btn soft" data-song-sp="1">+</button>${wk?`<button class="btn soft ${p.wake!==false?"on":""}" id="wkBtn" data-song-wake>☀ Screen on</button>`:""}</div>
+  ${bar}<div class="song-hero"><div class="sh-icon">${dIcon(s.deity)}</div><div class="eyebrow">${esc(s.deity)} · ${esc(s.category)}</div><h1 class="song-title">${esc(s.title)}</h1><div class="orn"><i></i>✦<i></i></div></div>
+  ${readTools(p,true)}
+  <div class="card tools rd-tools"><button class="btn gold" id="asBtn" data-song-as>▶ Auto-scroll</button><button class="btn soft" data-song-sp="-1">−</button><b id="spLabel">${p.speed}</b><button class="btn soft" data-song-sp="1">+</button>${wk?`<button class="btn soft ${p.wake!==false?"on":""}" id="wkBtn" data-song-wake>☀ Screen on</button>`:""}</div>
   <div id="songMedia"></div>
-  <article class="lyrics" id="lyrics" style="font-size:${p.size}px;line-height:${p.lh}">${esc(s.lyrics)}</article>${bar}`;
+  ${lyricBlock(s,p)}${bar}`;
 }
 
 /* auto-scroll */
@@ -95,7 +140,10 @@ function editor(){
   <div class="two-col"><div class="field"><label>Deity</label><select class="input" id="sDeity">${opts(DEITIES,s.deity)}</select></div>
   <div class="field"><label>Category</label><select class="input" id="sCat">${opts(CATS,s.category)}</select></div></div>
   <div class="field"><label>Linked audio / video (optional)</label><select class="input" id="sMedia"><option value="">None</option>${media.map(f=>`<option value="${f.id}" ${String(f.id)===String(s.mediaId)?"selected":""}>${esc(f.name)}</option>`).join("")}</select></div>
-  <div class="field"><label>Lyrics</label><textarea class="input" id="sLyrics" rows="14" placeholder="வரிகளை இங்கே ஒட்டவும்…">${esc(s.lyrics)}</textarea></div>
+  <div class="field"><label>Lyrics</label><textarea class="input" id="sLyrics" rows="14" placeholder="வரிகளை இங்கே ஒட்டவும்…">${esc(s.lyrics)}</textarea>
+  <div class="ed-hint">Paste the song — it is tidied automatically. Leave a blank line between verses. Labels like <b>பல்லவி</b>, <b>சரணம்</b> or <b>Chorus</b> and repeats like <b>×2</b> get styled for easy reading.</div>
+  <div class="two-col" style="margin-top:6px"><button class="btn soft" data-song-fmt>✨ Auto-format</button><button class="btn soft" data-song-prev>👁 Preview</button></div>
+  <div id="sPrev" class="lyrics-wrap rt-paper hidden"></div></div>
   <div class="two-col"><button class="btn gold" data-song-save>Save</button><button class="btn soft" data-song-cancel>Cancel</button></div>
   ${state.editId?`<button class="btn danger full" style="margin-top:12px" data-song-del>Delete song</button>`:""}</div>`;
 }
@@ -144,13 +192,18 @@ content.addEventListener("click",async e=>{
   if(d.songStar!==undefined){const a=songs(),s=a.find(x=>x.id===state.songId);if(s){s.fav=!s.fav;save(a);b.textContent=s.fav?"★":"☆"}return}
   if(d.songFs){const p=prefs();p.size=Math.max(14,Math.min(40,p.size+Number(d.songFs)*2));set("reader",p);$("#lyrics").style.fontSize=p.size+"px";$("#fsLabel").textContent=p.size;return}
   if(d.songLh!==undefined){const p=prefs();p.lh=LH[(LH.indexOf(p.lh)+1)%LH.length];set("reader",p);$("#lyrics").style.lineHeight=p.lh;return}
+  if(d.songAlign!==undefined){const p=prefs();p.align=p.align==="center"?"left":"center";set("reader",p);const l=$("#lyrics");if(l){l.classList.remove("al-left","al-center");l.classList.add("al-"+p.align)}b.textContent=p.align==="center"?"☰ Left":"☷ Centre";return}
+  if(d.songRt!==undefined){const p=prefs();p.rt=RT_ORDER[(RT_ORDER.indexOf(p.rt)+1)%RT_ORDER.length];set("reader",p);const w=$("#lyricsWrap");if(w)w.className="lyrics-wrap rt-"+p.rt;b.textContent="◐ "+RT_NAMES[p.rt];return}
+  if(d.songFmt!==undefined){const t=$("#sLyrics");t.value=autoFormat(t.value,$("#sTitle").value.trim());toast("Lyrics formatted ✓");const pv=$("#sPrev");if(pv&&!pv.classList.contains("hidden"))pv.innerHTML=`<article class="lyrics ly2 al-left" style="font-size:19px;line-height:1.9">${lyricsHtml(t.value)}</article>`;return}
+  if(d.songPrev!==undefined){const pv=$("#sPrev"),t=$("#sLyrics");if(!pv.classList.contains("hidden")){pv.classList.add("hidden");b.textContent="👁 Preview";return}pv.innerHTML=t.value.trim()?`<article class="lyrics ly2 al-left" style="font-size:19px;line-height:1.9">${lyricsHtml(t.value)}</article>`:'<p class="muted" style="text-align:center">Nothing to preview yet</p>';pv.classList.remove("hidden");b.textContent="🙈 Hide preview";return}
+  if(d.songQstar){const a=songs(),q=a.find(x=>x.id===d.songQstar);if(q){q.fav=!q.fav;save(a);$("#songList").innerHTML=rows()}return}
   if(d.songAs!==undefined){raf?stopScroll():startScroll();return}
   if(d.songSp){const p=prefs();p.speed=Math.max(1,Math.min(5,p.speed+Number(d.songSp)));spd=p.speed;set("reader",p);$("#spLabel").textContent=p.speed;return}
   if(d.songWake!==undefined){const p=prefs(),on=p.wake===false;p.wake=on;set("reader",p);b.classList.toggle("on",on);on?wake():unwake();toast(on?"Screen stays on":"Screen may sleep");return}
   if(d.songCopy!==undefined){const s=cur();if(!s)return;try{await navigator.clipboard.writeText(s.title+"\n\n"+s.lyrics);toast("Lyrics copied")}catch{toast("Copy not supported")}return}
   if(d.songDel!==undefined){if(await MB.dialog.confirm("Delete this song?",{title:"Delete song",confirmText:"Delete",danger:true})){const id=state.editId;save(songs().filter(x=>x.id!==id));saveSets(sets().map(s=>({...s,songIds:s.songIds.filter(q=>q!==id)})));state.editId=null;state.songId=null;state.setId=null;state.setIdx=null;go("songs");toast("Song deleted")}return}
   if(d.songSave!==undefined){
-    const title=$("#sTitle").value.trim(),lyrics=$("#sLyrics").value.trim();
+    const title=$("#sTitle").value.trim(),lyrics=cleanLyrics($("#sLyrics").value);
     if(!title||!lyrics){toast("Title and lyrics are required");return}
     const a=songs(),rec={title,lyrics,deity:$("#sDeity").value,category:$("#sCat").value,mediaId:$("#sMedia").value};
     if(state.editId){Object.assign(a.find(x=>x.id===state.editId),rec)}
@@ -174,6 +227,8 @@ content.addEventListener("click",async e=>{
   if(d.setStart!==undefined||d.setPlay!==undefined){const s=curSet();if(!s||!s.songIds.length){toast("Add songs first");return}const i=d.setPlay!==undefined?Number(d.setPlay):0;state.setIdx=i;state.songId=s.songIds[i];go("song");scrollTo(0,0);return}
   if(d.setNav){const s=curSet();if(!s)return;const i=state.setIdx+Number(d.setNav);if(i<0||i>=s.songIds.length)return;state.setIdx=i;state.songId=s.songIds[i];render();scrollTo(0,0)}
 });
+content.addEventListener("paste",e=>{const t=e.target;if(t.id!=="sLyrics")return;const empty=!t.value.trim();setTimeout(()=>{if(empty){t.value=autoFormat(t.value,($("#sTitle")||{value:""}).value.trim());toast("Lyrics arranged for reading ✓")}else t.value=cleanLyrics(t.value)},0)});
+content.addEventListener("click",e=>{const st=e.target.closest(".lyrics .stz");if(!st||e.target.closest("button"))return;const art=st.closest(".lyrics"),was=st.classList.contains("on");art.querySelectorAll(".stz.on").forEach(x=>x.classList.remove("on"));art.classList.toggle("has-focus",!was);if(!was)st.classList.add("on")});
 content.addEventListener("input",e=>{if(e.target.id==="songSearch"){state.songQ=e.target.value;$("#songList").innerHTML=rows()}});
 
 async function mountSongMedia(){
@@ -196,9 +251,9 @@ function nowPlaying(){
   const p=prefs(),wk="wakeLock" in navigator;
   return `<div class="reader-top"><button class="btn soft" data-np-back>‹ Music</button><div class="tools"><button class="icon-btn" data-song-star aria-label="Favourite">${s.fav?"★":"☆"}</button><button class="btn soft" data-np-reader>Reader</button></div></div>
   <div class="np-player"><div id="songMedia"></div><div class="np-meta"><b class="song-title">${esc(s.title)}</b><small>${esc(s.deity)} · ${esc(s.category)}</small></div></div>
-  <div class="card tools"><button class="btn soft" data-song-fs="-1">A−</button><b id="fsLabel">${p.size}</b><button class="btn soft" data-song-fs="1">A+</button><button class="btn soft" data-song-lh>↕ Spacing</button></div>
-  <div class="card tools"><button class="btn gold" id="asBtn" data-song-as>▶ Auto-scroll</button><button class="btn soft" data-song-sp="-1">−</button><b id="spLabel">${p.speed}</b><button class="btn soft" data-song-sp="1">+</button>${wk?`<button class="btn soft ${p.wake!==false?"on":""}" id="wkBtn" data-song-wake>☀ Screen on</button>`:""}</div>
-  <article class="lyrics" id="lyrics" style="font-size:${p.size}px;line-height:${p.lh}">${esc(s.lyrics)}</article>`;
+  ${readTools(p,false)}
+  <div class="card tools rd-tools"><button class="btn gold" id="asBtn" data-song-as>▶ Auto-scroll</button><button class="btn soft" data-song-sp="-1">−</button><b id="spLabel">${p.speed}</b><button class="btn soft" data-song-sp="1">+</button>${wk?`<button class="btn soft ${p.wake!==false?"on":""}" id="wkBtn" data-song-wake>☀ Screen on</button>`:""}</div>
+  ${lyricBlock(s,p)}`;
 }
 function linkRows(){
   const q=(state.linkQ||"").trim().toLowerCase(),qk=q?key(q):"";
