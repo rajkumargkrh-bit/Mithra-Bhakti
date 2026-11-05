@@ -25,7 +25,7 @@ const key=t=>{let k=keyCache.get(t);if(k===undefined){k=fold(ta2en(t));keyCache.
 /* ---------- Songs list ---------- */
 function filtered(){
   const q=(state.songQ||"").trim().toLowerCase(),qk=q?key(q):"";
-  return songs().filter(s=>(!state.songCat||s.category===state.songCat)&&(!state.songFav||s.fav)&&(!q||
+  return songs().filter(s=>(!state.songCat||s.category===state.songCat)&&(!state.songDeity||s.deity===state.songDeity)&&(!state.songFav||s.fav)&&(!q||
     (s.title+" "+s.deity+" "+s.lyrics).toLowerCase().includes(q)||(qk&&(key(s.title+" "+s.deity).includes(qk)||key(s.lyrics).includes(qk)))))
     .sort((a,b)=>a.title.localeCompare(b.title,"ta"));
 }
@@ -36,11 +36,13 @@ function rows(){
 }
 function songsPage(){
   const chip=(label,attr,on)=>`<button class="chip-btn ${on?"on":""}" ${attr}>${label}</button>`;
+  const dl=[...new Set(songs().map(s=>s.deity))].sort();
   return `${header("Songs","Your Tamil lyrics book.")}
   <div class="card row"><div><b>${songs().length} songs</b><div class="muted" style="font-size:11px">Stored on this device</div></div><button class="btn gold" data-song-add>+ Add song</button></div>
   <button class="btn soft full" data-song-sets style="margin-bottom:12px">♪ Setlists (${sets().length})</button>
   <input class="input" id="songSearch" type="search" placeholder="Search Tamil or Tanglish (murugan, kanda sasti)…" value="${esc(state.songQ||"")}" style="margin-bottom:12px">
   <div class="chips">${chip("★ Favourites","data-song-fav",state.songFav)}${chip("All","data-song-cat=\"\"",!state.songCat)}${CATS.map(c=>chip(c,`data-song-cat="${c}"`,state.songCat===c)).join("")}</div>
+  ${dl.length?`<div class="chips">${chip("All deities","data-song-deity=\"\"",!state.songDeity)}${dl.map(x=>chip(esc(x),`data-song-deity="${esc(x)}"`,state.songDeity===x)).join("")}</div>`:""}
   <div class="card" id="songList">${rows()}</div>`;
 }
 
@@ -133,6 +135,7 @@ content.addEventListener("click",async e=>{
   if(d.songOpen){state.setId=null;state.setIdx=null;state.songId=d.songOpen;go("song");scrollTo(0,0);return}
   if(d.songAdd!==undefined){state.editId=null;go("songEdit");scrollTo(0,0);return}
   if(d.songCat!==undefined){state.songCat=d.songCat;render();return}
+  if(d.songDeity!==undefined){state.songDeity=d.songDeity;render();return}
   if(d.songFav!==undefined){state.songFav=!state.songFav;render();return}
   if(d.songBack!==undefined){if(state.setIdx!=null){state.setIdx=null;go("setlist")}else go("songs");scrollTo(0,0);return}
   if(d.songBackList!==undefined){go("songs");return}
