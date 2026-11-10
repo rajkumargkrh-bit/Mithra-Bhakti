@@ -17,7 +17,7 @@ const fmtLong=k=>new Date(k+'T00:00:00').toLocaleDateString(undefined,{day:'nume
 function japamStats(){
  const all=get('japamCounts',{}),today=lk(),c=k=>Number(all[k]&&all[k].count)||0;
  let streak=0,k=c(today)>0?today:addDays(today,-1);
- while(c(k)>0){streak++;k=addDays(k,-1)}
+ while(c(k)>0&&streak<400){streak++;k=addDays(k,-1)}
  const days=[];for(let i=6;i>=0;i--){const d=addDays(today,-i);days.push({d,n:c(d)})}
  const mk=today.slice(0,7);let month=0,best=0,bestD='';
  for(const d in all){const n=c(d);if(d.startsWith(mk))month+=n;if(n>best){best=n;bestD=d}}
