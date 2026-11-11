@@ -136,3 +136,14 @@ These are additions. Existing pages, libraries, original backup/restore, calenda
 - **Backup reminder:** a Home banner after 7 days without a backup (snooze 3 days).
 - New files: `js/bhakti-extras.js`, `css/bhakti-extras.css`. Small hooks: one link and one script tag in `index.html`, two files added to the cache list and cache bump to v26 in `service-worker.js`, `shortcuts` in `manifest.json`. Data keys use the `mb_` prefix so Smart Backup includes them.
 - Tamil month dates are approximate (sankranti can shift by a day). Verify with your local panchangam.
+
+
+## Bhakti Studio (v1.8) — additive
+- **Pooja Mode:** full-screen deepam with animated flame, synthesized temple bell, deity mantra, and lyrics from your Songs library with auto-scroll, font size and screen-on. Optional switch ticks "lamp" and "morning prayer" in Daily Bhakti when you finish (off by default).
+- **Prayer Journal:** daily gratitude, prarthanai and mood; month view, edit/delete for any past day.
+- **Likhita Japam:** type the mantra (Tamil or Tanglish) or tap to count; 108-dot page grid, goals up to 1 crore, last-7-days bars, custom mantras.
+- **Temple Log:** visited list with date, notes and photo, wishlist, starter Bengaluru list, Google Maps link. Photos are stored in their own IndexedDB (`mb_studio`) and are not included in JSON backup.
+- **Padal Learning:** practise songs with hidden lines (first word / alternate lines / all hidden, tap to reveal), mark learned, spaced revision (1/3/7/14/30/60 days), optional weekly reminder when the app is opened.
+- **Insights & Badges:** streak, best streak, totals and 17 badges (incl. 48-day Mandalam); share card as image.
+- Entry points: Menu → BHAKTI STUDIO group, and a Home card under Today's Thought.
+- New files: `js/bhakti-studio.js`, `css/bhakti-studio.css`. Hooks: one link + one script tag in `index.html`, two cache entries and cache bump to v28 in `service-worker.js`. Data keys use the `bs*` names under the `mb_` prefix, so Smart Backup includes them.
