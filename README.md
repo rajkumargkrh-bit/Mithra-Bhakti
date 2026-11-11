@@ -154,3 +154,9 @@ These are additions. Existing pages, libraries, original backup/restore, calenda
 - **Hanuman Chalisa** (full), **17 classic slokas** (Vinayagar, Shiva, Murugan, Perumal, Ayyappan, Amman, Guru, Surya, shanti mantras) and **Tamil selections** (Appar Thevaram, Sivapuranam opening, Thirumanthiram, Thiruppavai verse 1).
 - Only traditional / public-domain texts are bundled. Modern film or album songs are not included (copyright). Verify wording with a trusted book and edit in Songs if needed.
 - New files: `js/bhakti-library.js`, `css/bhakti-library.css`. Hooks: one link + one script tag in `index.html`, two cache entries and cache bump to v30 in `service-worker.js`. Uses the existing `songs` key, so Smart Backup already includes the added songs.
+
+
+## Song & Mantra Books update (v1.9.1) — additive
+- Added a new book "தமிழ் பக்திப் பாடல்கள் – 2": Vinayagar Agaval (opening), Kanda Sashti Kavacham (opening), Sambandar's Thodudaiya Seviyan and Kolaru Pathigam, Appar's Namachivaya pathigam, and Bharathiyar's Kaakkai Siraginile.
+- Only traditional / public-domain texts. Verify wording against a trusted book and fix in Songs → Edit.
+- Changed files: `js/bhakti-library.js`, `index.html` (script `?v=3`), `service-worker.js` (cache v31), `README.md`.
