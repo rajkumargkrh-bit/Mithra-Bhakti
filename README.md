@@ -147,3 +147,10 @@ These are additions. Existing pages, libraries, original backup/restore, calenda
 - **Insights & Badges:** streak, best streak, totals and 17 badges (incl. 48-day Mandalam); share card as image.
 - Entry points: Menu → BHAKTI STUDIO group, and a Home card under Today's Thought.
 - New files: `js/bhakti-studio.js`, `css/bhakti-studio.css`. Hooks: one link + one script tag in `index.html`, two cache entries and cache bump to v28 in `service-worker.js`. Data keys use the `bs*` names under the `mb_` prefix, so Smart Backup includes them.
+
+
+## Song & Mantra Books (v1.9) — additive
+- **Menu → Devotional Tools → Song & Mantra Books:** ready-made classic texts that add to Songs & Lyrics in one tap (per song, or "Add all" per book).
+- **Hanuman Chalisa** (full), **17 classic slokas** (Vinayagar, Shiva, Murugan, Perumal, Ayyappan, Amman, Guru, Surya, shanti mantras) and **Tamil selections** (Appar Thevaram, Sivapuranam opening, Thirumanthiram, Thiruppavai verse 1).
+- Only traditional / public-domain texts are bundled. Modern film or album songs are not included (copyright). Verify wording with a trusted book and edit in Songs if needed.
+- New files: `js/bhakti-library.js`, `css/bhakti-library.css`. Hooks: one link + one script tag in `index.html`, two cache entries and cache bump to v29 in `service-worker.js`. Uses the existing `songs` key, so Smart Backup already includes the added songs.
