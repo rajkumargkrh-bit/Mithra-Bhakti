@@ -122,3 +122,17 @@ These are additions. Existing pages, libraries, original backup/restore, calenda
 - Added quick access shortcuts to Daily Bhakti, Japam Counter, Special Days and Festival Plus.
 - Reads existing `bkDailyChecks` and `japamCounts` data without modifying those records; new goal preferences use the isolated `mb_dashboardPlus` key.
 - New files: `js/dashboard-plus.js` and `css/dashboard-plus.css`; linked additively from `index.html` and included in the service-worker cache.
+
+
+## Bhakti Extras (v1.7) — additive
+- **Stotram Library (Menu → Devotional Tools):** short Tamil verses and mantras with Tanglish and meaning; one tap adds them to Songs & Lyrics. Long texts are intentionally not bundled; paste them from a trusted book.
+- **Home card:** Tamil date (month and year, approximate), today's worship deity with matching songs from your library, and a daily Thirukkural (Kadavul Vazhthu).
+- **Japam:** mantra chips (add your own), vibration on each count and at every 108, lifetime tally per mantra, and a share card.
+- **Share cards:** today's card, greeting card and japam card as an image (Share sheet, or download as fallback).
+- **Calendar:** Tamil date for the selected day above the panchangam.
+- **Viratham Tracker (Menu):** log the days you keep viratham, with month/year totals and history.
+- **Read aloud:** button on the lyrics reader and the library (uses the browser's Tamil voice if the device has one).
+- **Install shortcuts:** long-press the home-screen icon for Japam, Player and Panchangam (Android Chrome).
+- **Backup reminder:** a Home banner after 7 days without a backup (snooze 3 days).
+- New files: `js/bhakti-extras.js`, `css/bhakti-extras.css`. Small hooks: one link and one script tag in `index.html`, two files added to the cache list and cache bump to v26 in `service-worker.js`, `shortcuts` in `manifest.json`. Data keys use the `mb_` prefix so Smart Backup includes them.
+- Tamil month dates are approximate (sankranti can shift by a day). Verify with your local panchangam.
