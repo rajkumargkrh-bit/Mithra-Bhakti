@@ -273,6 +273,15 @@ function addOne(arr, s) {
 MB.pages.songBooks = page;
 
 function inject() {
+  /* Explore Menu overlay: add the entry to the LIBRARY group */
+  const sc = $('#premiumMenuOverlay .premium-menu-scroll');
+  if (sc && !sc.querySelector('[data-go="songBooks"]')) {
+    const entry = '<button class="premium-menu-item" data-go="songBooks"><span class="premium-menu-icon">📖</span><span class="premium-menu-copy"><b>Song & Mantra Books</b><small>Chalisa, slokas, Thirumurai</small></span><span class="premium-menu-arrow">›</span></button>';
+    const lib = [...sc.querySelectorAll('.premium-menu-group')].find(g => { const h = g.querySelector('h3'); return h && h.textContent.trim() === 'LIBRARY'; });
+    const grid = lib && lib.querySelector('.premium-menu-grid');
+    if (grid) grid.insertAdjacentHTML('beforeend', entry);
+    else sc.insertAdjacentHTML('afterbegin', `<section class="premium-menu-group"><h3>LIBRARY</h3><div class="premium-menu-grid">${entry}</div></section>`);
+  }
   const root = $('#pageContent'); if (!root) return;
   const p = MB.state && MB.state.page;
   if (p === 'more' && !root.querySelector('[data-go="songBooks"]')) {
