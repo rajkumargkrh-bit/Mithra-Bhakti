@@ -1,0 +1,4 @@
+const V='mb-v1',F=["./", "index.html", "manifest.json", "css/base.css", "css/themes.css", "css/components.css", "css/splash.css", "css/extras.css", "js/data.js", "js/core.js", "js/screens/home.js", "js/screens/songs.js", "js/screens/lyrics.js", "js/screens/calendar.js", "js/screens/japa.js", "js/screens/settings.js", "js/events.js", "js/main.js", "assets/icons/icon-192.png", "assets/icons/icon-512.png"];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(F)));self.skipWaiting()});
+self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==V).map(x=>caches.delete(x))))));
+self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(n=>{const c=n.clone();caches.open(V).then(x=>x.put(e.request,c));return n}).catch(()=>caches.match('index.html'))))});
