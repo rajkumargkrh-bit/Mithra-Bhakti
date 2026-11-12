@@ -1,9 +1,0 @@
-/* Mithra Bhakti — Song & Mantra Books (additive; scoped to bl- classes) */
-.bl-book{margin-bottom:14px}
-.bl-item{border-top:1px solid var(--line);padding:10px 0}
-.bl-item:first-of-type{margin-top:10px}
-.bl-item summary{display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;font-weight:600;list-style:none}
-.bl-item summary::-webkit-details-marker{display:none}
-.bl-item summary::after{content:'▾';color:var(--muted);margin-left:4px}
-.bl-item[open] summary::after{content:'▴'}
-.bl-item .bx-ta{margin-top:10px}
