@@ -1,1 +1,2 @@
-
+:root[data-theme=dark]{--bg:#150807;--card:rgba(70,24,20,.65);--tx:#f6e7c6;--mut:#b99a7a;--pri:#D4AF37;--mar:#2a0f0d;--on:#1a0b0a;--sh:0 6px 20px rgba(0,0,0,.5);color-scheme:dark}
+:root[data-theme=saffron]{--bg:#FFD9A0;--card:rgba(255,248,231,.8);--tx:#4a1a10;--mut:#8a5a35;--pri:#C2410C;--mar:#7a2e12;--gold:#8a6d0f;--on:#fff}
